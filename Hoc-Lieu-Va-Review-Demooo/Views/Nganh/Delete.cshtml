@@ -1,0 +1,34 @@
+﻿@model Hoc_Lieu_Va_Review_Demooo.Models.Nganh
+
+@{
+    ViewData["Title"] = "Xóa Ngành";
+}
+
+<div class="container mt-4">
+    <h2 class="text-danger">Xóa Ngành Đào Tạo</h2>
+    <h4 class="mb-4">Bạn có chắc chắn muốn xóa ngành này không?</h4>
+    <div>
+        <div class="card shadow-sm col-md-6">
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Tên Ngành:</dt>
+                    <dd class="col-sm-8 fw-bold">@Model.TenNganh</dd>
+
+                    <dt class="col-sm-4">Thuộc Khoa:</dt>
+                    <dd class="col-sm-8 text-primary">@Model.Khoa?.TenKhoa</dd>
+
+                    <dt class="col-sm-4">Mô tả:</dt>
+                    <dd class="col-sm-8">@Model.MoTa</dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <form asp-action="Delete">
+                <input type="hidden" asp-for="NganhID" />
+                <button type="submit" class="btn btn-danger">Xác nhận Xóa</button>
+                <a class="btn btn-secondary ms-2" asp-action="Index">Hủy và Quay lại</a>
+            </form>
+        </div>
+    </div>
+</div>

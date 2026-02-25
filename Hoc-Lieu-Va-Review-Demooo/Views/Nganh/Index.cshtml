@@ -35,8 +35,8 @@
 
                         <td>@item.MoTa</td>
                         <td class="text-center">
-                            <a class="btn btn-sm btn-primary disabled" href="#">Sửa</a> |
-                            <a class="btn btn-sm btn-danger disabled" href="#">Xóa</a>
+                            <a class="btn btn-sm btn-primary" asp-action="Edit" asp-route-id="@item.NganhID">Sửa</a> |
+                            <a class="btn btn-sm btn-danger" asp-action="Delete" asp-route-id="@item.NganhID">Xóa</a>
                         </td>
                     </tr>
                     stt++;
