@@ -22,7 +22,7 @@ namespace Hoc_Lieu_Va_Review_Demooo.Models
         public string MatKhau { get; set; }
 
         [Column(TypeName = "varchar(500)")]
-        public string AnhDaiDien { get; set; }
+        public string? AnhDaiDien { get; set; }
 
         public DateTime NgayDangKy { get; set; } = DateTime.Now;
 
