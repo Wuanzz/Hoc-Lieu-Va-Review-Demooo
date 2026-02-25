@@ -25,6 +25,14 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
+
+                        @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                        {
+                            // Điều kiện User.IsInRole("Admin") để chỉ Admin mới thấy nút này
+                            <li class="nav-item">
+                                <a class="nav-link text-primary fw-bold" asp-area="" asp-controller="Khoa" asp-action="Index">Quản lý Khoa</a>
+                            </li>
+                        }
                     </ul>
 
                     <ul class="navbar-nav">
