@@ -86,5 +86,70 @@ namespace Hoc_Lieu_Va_Review_Demooo.Controllers
             ViewData["HocPhanID"] = new SelectList(_context.HocPhans, "HocPhanID", "TenHocPhan", review.HocPhanID);
             return View(review);
         }
+
+        // HÀM MỞ TRANG CHI TIẾT REVIEW 
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null) return NotFound();
+
+            // Lấy bài Review cùng thông tin Môn học và Người viết
+            var review = await _context.Reviews
+                .Include(r => r.HocPhan)
+                .Include(r => r.NguoiDung)
+                .FirstOrDefaultAsync(m => m.ReviewID == id);
+
+            if (review == null) return NotFound();
+
+            // Lấy danh sách bình luận CỦA BÀI REVIEW NÀY (Chỉ lấy bình luận hợp lệ)
+            // Lưu ý: Cột ReviewID trong bảng BinhLuan phải cho phép null (int?) nhé
+            var danhSachBinhLuan = await _context.BinhLuans
+                .Include(b => b.NguoiDung)
+                .Where(b => b.ReviewID == id && (b.TrangThaiDuyet == "HopLe" || b.TrangThaiDuyet == "DaDuyet"))
+                .OrderByDescending(b => b.NgayDang)
+                .ToListAsync();
+
+            ViewBag.DanhSachBinhLuan = danhSachBinhLuan;
+
+            return View(review);
+        }
+
+        // HÀM XỬ LÝ GỬI BÌNH LUẬN (CÓ AI KIỂM DUYỆT)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddComment(int ReviewID, string NoiDung)
+        {
+            if (string.IsNullOrWhiteSpace(NoiDung)) return RedirectToAction(nameof(Details), new { id = ReviewID });
+
+            var userIdClaim = User.FindFirst("UserId");
+            if (userIdClaim != null)
+            {
+                // Gọi AI vào kiểm duyệt chữ
+                string ketQuaDuyet = await _geminiService.KiemDuyetVanBan(NoiDung);
+
+                var binhLuan = new BinhLuan
+                {
+                    ReviewID = ReviewID, // Gắn ID của bài Review vào
+                    NoiDung = NoiDung,
+                    NgayDang = DateTime.Now,
+                    TrangThaiDuyet = ketQuaDuyet,
+                    NguoiDungID = int.Parse(userIdClaim.Value)
+                };
+
+                _context.BinhLuans.Add(binhLuan);
+                await _context.SaveChangesAsync();
+
+                // Gửi thông báo cho người dùng
+                if (ketQuaDuyet == "TuChoi")
+                {
+                    TempData["ThongBaoBinhLuan"] = "❌ Bình luận của bạn chứa từ ngữ vi phạm và đã bị AI tự động chặn!";
+                }
+                else if (ketQuaDuyet == "ChoDuyet")
+                {
+                    TempData["ThongBaoBinhLuan"] = "⏳ Bình luận có từ ngữ lạ, đang chờ Giảng viên duyệt.";
+                }
+            }
+
+            return RedirectToAction(nameof(Details), new { id = ReviewID });
+        }
     }
 }
