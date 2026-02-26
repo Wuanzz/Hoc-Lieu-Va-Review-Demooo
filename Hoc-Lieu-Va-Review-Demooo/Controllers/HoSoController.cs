@@ -45,5 +45,55 @@ namespace Hoc_Lieu_Va_Review_Demooo.Controllers
 
             return View(nguoiDung);
         }
+
+        // MỞ FORM ĐỔI MẬT KHẨU 
+        [HttpGet]
+        public IActionResult DoiMatKhau()
+        {
+            return View();
+        }
+
+        // XỬ LÝ ĐỔI MẬT KHẨU 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DoiMatKhau(string matKhauCu, string matKhauMoi, string xacNhanMatKhau)
+        {
+            // Lấy ID người dùng đang đăng nhập
+            var userIdClaim = User.FindFirst("UserId");
+            if (userIdClaim == null) return RedirectToAction("Login", "Account");
+            int userId = int.Parse(userIdClaim.Value);
+
+            var nguoiDung = await _context.NguoiDungs.FindAsync(userId);
+            if (nguoiDung == null) return NotFound();
+
+            // KIỂM TRA LOGIC BẢO MẬT
+            if (nguoiDung.MatKhau != matKhauCu)
+            {
+                ViewBag.Loi = "❌ Mật khẩu cũ không chính xác!";
+                return View();
+            }
+
+            if (matKhauMoi != xacNhanMatKhau)
+            {
+                ViewBag.Loi = "❌ Mật khẩu xác nhận không khớp với mật khẩu mới!";
+                return View();
+            }
+
+            if (matKhauMoi.Length < 6)
+            {
+                ViewBag.Loi = "❌ Mật khẩu mới phải có ít nhất 6 ký tự!";
+                return View();
+            }
+
+            // Nếu qua hết các bài test thì lưu mật khẩu mới
+            nguoiDung.MatKhau = matKhauMoi;
+            await _context.SaveChangesAsync();
+
+            // Gửi thông báo thành công ra ngoài
+            TempData["ThongBaoDoiMatKhau"] = "Đổi mật khẩu thành công! Lần đăng nhập sau hãy dùng mật khẩu mới nhé.";
+
+            // Đổi xong thì đá về lại trang Hồ Sơ chính
+            return RedirectToAction(nameof(Index));
+        }
     }
 }
