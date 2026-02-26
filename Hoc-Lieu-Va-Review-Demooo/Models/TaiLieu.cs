@@ -1,11 +1,19 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+// Nhớ thêm dòng này nếu nó báo lỗi ICollection nhé
+using System.Collections.Generic;
 
 namespace Hoc_Lieu_Va_Review_Demooo.Models
 {
     [Table("TaiLieu")]
     public class TaiLieu
     {
+        // Thêm Constructor này để khởi tạo danh sách Bình luận
+        public TaiLieu()
+        {
+            BinhLuans = new HashSet<BinhLuan>();
+        }
+
         [Key]
         public int TaiLieuID { get; set; }
 
@@ -39,5 +47,7 @@ namespace Hoc_Lieu_Va_Review_Demooo.Models
 
         [ForeignKey("HocPhanID")]
         public virtual HocPhan HocPhan { get; set; }
+
+        public virtual ICollection<BinhLuan> BinhLuans { get; set; }
     }
 }

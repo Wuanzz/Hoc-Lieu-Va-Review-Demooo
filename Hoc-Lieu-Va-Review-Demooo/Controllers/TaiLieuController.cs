@@ -129,5 +129,55 @@ namespace Hoc_Lieu_Va_Review_Demooo.Controllers
 
             return File(fileBytes, "application/octet-stream", downloadName);
         }
+
+        // [GET] Hiển thị chi tiết tài liệu và danh sách bình luận
+        [HttpGet]
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null) return NotFound();
+
+            var taiLieu = await _context.TaiLieus
+                .Include(t => t.HocPhan)
+                .Include(t => t.NguoiDung)
+                .Include(t => t.BinhLuans)
+                    .ThenInclude(b => b.NguoiDung)
+                .FirstOrDefaultAsync(m => m.TaiLieuID == id);
+
+            if (taiLieu == null) return NotFound();
+
+            // Đã đổi thành NgayDang chuẩn theo file BinhLuan.cs
+            taiLieu.BinhLuans = taiLieu.BinhLuans.OrderByDescending(b => b.NgayDang).ToList();
+
+            return View(taiLieu);
+        }
+
+        // [POST] Xử lý khi người dùng bấm "Gửi bình luận"
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddComment(int TaiLieuID, string NoiDung)
+        {
+            if (string.IsNullOrWhiteSpace(NoiDung))
+            {
+                return RedirectToAction(nameof(Details), new { id = TaiLieuID });
+            }
+
+            var userIdClaim = User.FindFirst("UserId");
+            if (userIdClaim != null)
+            {
+                var binhLuan = new BinhLuan
+                {
+                    TaiLieuID = TaiLieuID,
+                    NoiDung = NoiDung,
+                    NgayDang = DateTime.Now,         // Chuẩn tên biến của cậu
+                    TrangThaiDuyet = "DaDuyet",      // Thêm trạng thái duyệt để không bị lỗi DB
+                    NguoiDungID = int.Parse(userIdClaim.Value)
+                };
+
+                _context.BinhLuans.Add(binhLuan);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(Details), new { id = TaiLieuID });
+        }
     }
 }
