@@ -42,9 +42,18 @@ namespace Hoc_Lieu_Va_Review_Demooo.Controllers
                 .OrderBy(b => b.NgayDang)
                 .ToListAsync();
 
+            // Bài Review bị AI nghi ngờ (ChoDuyet)
+            var reviewChoDuyet = await _context.Reviews
+                .Include(r => r.NguoiDung)
+                .Include(r => r.HocPhan)
+                .Where(r => r.TrangThaiDuyet == "ChoDuyet")
+                .OrderBy(r => r.NgayDang)
+                .ToListAsync();
+
             ViewBag.TaiLieuChoDuyet = taiLieuChoDuyet;
             ViewBag.DanhSachBaoCao = danhSachBaoCao;
-            ViewBag.BinhLuanChoDuyet = binhLuanChoDuyet; 
+            ViewBag.BinhLuanChoDuyet = binhLuanChoDuyet;
+            ViewBag.ReviewChoDuyet = reviewChoDuyet; 
 
             return View();
         }
@@ -120,6 +129,31 @@ namespace Hoc_Lieu_Va_Review_Demooo.Controllers
             if (binhLuan != null)
             {
                 binhLuan.TrangThaiDuyet = "TuChoi"; // Chặn vĩnh viễn
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction(nameof(Index));
+        }
+
+        // XỬ LÝ REVIEW 
+        [HttpPost]
+        public async Task<IActionResult> DuyetReview(int id)
+        {
+            var review = await _context.Reviews.FindAsync(id);
+            if (review != null)
+            {
+                review.TrangThaiDuyet = "HopLe"; // Cho hiển thị ra cộng đồng
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> TuChoiReview(int id)
+        {
+            var review = await _context.Reviews.FindAsync(id);
+            if (review != null)
+            {
+                review.TrangThaiDuyet = "TuChoi"; // Chặn vĩnh viễn
                 await _context.SaveChangesAsync();
             }
             return RedirectToAction(nameof(Index));
