@@ -138,33 +138,38 @@
                             foreach (var item in reviewCuaToi)
                             {
                                 <li class="list-group-item p-3 position-relative list-group-item-action">
-                                    <div class="d-flex justify-content-between">
-                                        @if (item.TrangThaiDuyet == "HopLe" || item.TrangThaiDuyet == "DaDuyet")
-                                        {
-                                            <a asp-controller="Review" asp-action="Details" asp-route-id="@item.ReviewID" class="text-decoration-none h6 mb-1 fw-bold text-primary d-block stretched-link">@item.HocPhan?.TenHocPhan</a>
-                                        }
-                                        else
-                                        {
-                                            <h6 class="mb-1 fw-bold text-dark">@item.HocPhan?.TenHocPhan</h6>
-                                        }
-                                        <small class="text-muted">@item.NgayDang.ToString("dd/MM/yyyy")</small>
-                                    </div>
-                                    <p class="mb-1 small text-truncate" style="max-width: 90%;">"@item.NoiDung"</p>
-                                    <div>
-                                        @if (item.TrangThaiDuyet == "HopLe" || item.TrangThaiDuyet == "DaDuyet")
-                                        {
-                                            <span class="badge bg-success">Hiển thị</span>
-                                        }
-                                        else if (item.TrangThaiDuyet == "ChoDuyet")
-                                        {
+                                    <div class="d-flex justify-content-between align-items-start">
 
-                                            <span class="badge bg-warning text-dark">Chờ duyệt</span>
-                                        }
-                                        else
-                                        {
+                                        <div class="pe-3 w-100">
+                                            @if (item.TrangThaiDuyet == "HopLe" || item.TrangThaiDuyet == "DaDuyet")
+                                            {
+                                                <a asp-controller="Review" asp-action="Details" asp-route-id="@item.ReviewID" class="text-decoration-none h6 mb-1 fw-bold text-primary d-block stretched-link">@item.HocPhan?.TenHocPhan</a>
+                                            }
+                                            else
+                                            {
+                                                <h6 class="mb-1 fw-bold text-dark">@item.HocPhan?.TenHocPhan</h6>
+                                            }
+                                            <p class="mb-0 small text-truncate text-muted" style="max-width: 95%;">"@item.NoiDung"</p>
+                                        </div>
 
-                                            <span class="badge bg-danger">Bị chặn</span>
-                                        }
+                                        <div class="text-end flex-shrink-0" style="min-width: 85px;">
+                                            <small class="text-muted d-block mb-1">@item.NgayDang.ToString("dd/MM/yyyy")</small>
+                                            @if (item.TrangThaiDuyet == "HopLe" || item.TrangThaiDuyet == "DaDuyet")
+                                            {
+                                                <span class="badge bg-success">Hiển thị</span>
+                                            }
+                                            else if (item.TrangThaiDuyet == "ChoDuyet")
+                                            {
+
+                                                <span class="badge bg-warning text-dark">Chờ duyệt</span>
+                                            }
+                                            else
+                                            {
+
+                                                <span class="badge bg-danger">Bị chặn</span>
+                                            }
+                                        </div>
+
                                     </div>
                                 </li>
                             }
