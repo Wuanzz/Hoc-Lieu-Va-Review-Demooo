@@ -116,29 +116,30 @@ namespace Hoc_Lieu_Va_Review_Demooo.Controllers
         // HÀM XỬ LÝ GỬI BÌNH LUẬN (CÓ AI KIỂM DUYỆT)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddComment(int ReviewID, string NoiDung)
+        // Bổ sung thêm tham số ParentID
+        public async Task<IActionResult> AddComment(int ReviewID, string NoiDung, int? ParentID)
         {
             if (string.IsNullOrWhiteSpace(NoiDung)) return RedirectToAction(nameof(Details), new { id = ReviewID });
 
             var userIdClaim = User.FindFirst("UserId");
             if (userIdClaim != null)
             {
-                // Gọi AI vào kiểm duyệt chữ
+                // Vẫn qua AI duyệt như bình thường
                 string ketQuaDuyet = await _geminiService.KiemDuyetVanBan(NoiDung);
 
                 var binhLuan = new BinhLuan
                 {
-                    ReviewID = ReviewID, // Gắn ID của bài Review vào
+                    ReviewID = ReviewID,
                     NoiDung = NoiDung,
                     NgayDang = DateTime.Now,
                     TrangThaiDuyet = ketQuaDuyet,
-                    NguoiDungID = int.Parse(userIdClaim.Value)
+                    NguoiDungID = int.Parse(userIdClaim.Value),
+                    ParentID = ParentID // Gắn ID của bình luận cha vào đây
                 };
 
                 _context.BinhLuans.Add(binhLuan);
                 await _context.SaveChangesAsync();
 
-                // Gửi thông báo cho người dùng
                 if (ketQuaDuyet == "TuChoi")
                 {
                     TempData["ThongBaoBinhLuan"] = "❌ Bình luận của bạn chứa từ ngữ vi phạm và đã bị AI tự động chặn!";
