@@ -17,10 +17,34 @@ namespace Hoc_Lieu_Va_Review_Demooo.Controllers
         }
 
         // Hiển thị danh sách Ngành
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string timKiem, int page = 1)
         {
-            // Dùng Include để lấy luôn thông tin của bảng Khoa (tránh bị rỗng tên khoa khi hiển thị)
-            var danhSachNganh = await _context.Nganhs.Include(n => n.Khoa).ToListAsync();
+            int pageSize = 5; // Cứ để 5 dòng 1 trang cho giao diện gọn gàng
+
+            // Lấy danh sách Ngành kèm theo thông tin của Khoa
+            var query = _context.Nganhs.Include(n => n.Khoa).AsQueryable();
+
+            // LỌC TÌM KIẾM THEO TÊN NGÀNH
+            if (!string.IsNullOrEmpty(timKiem))
+            {
+                query = query.Where(n => n.TenNganh.Contains(timKiem));
+                ViewBag.TuKhoa = timKiem; // Giữ lại từ khóa trên ô tìm kiếm
+            }
+
+            // THUẬT TOÁN PHÂN TRANG
+            int totalItems = await query.CountAsync();
+            int totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+
+            // Cắt dữ liệu theo trang
+            var danhSachNganh = await query
+                .OrderBy(n => n.NganhID) // Sắp xếp theo ID
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
             return View(danhSachNganh);
         }
 
