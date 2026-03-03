@@ -87,6 +87,7 @@ namespace Hoc_Lieu_Va_Review_Demooo.Controllers
             return View(review);
         }
 
+        // Dropdown liên ho giữa Khoa -> Ngành -> Học Phần
         [HttpGet]
         public IActionResult GetNganhByKhoa(int khoaId)
         {

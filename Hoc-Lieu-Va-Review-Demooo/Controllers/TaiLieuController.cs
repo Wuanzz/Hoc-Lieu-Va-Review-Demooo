@@ -72,7 +72,7 @@ namespace Hoc_Lieu_Va_Review_Demooo.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-            ViewData["HocPhanID"] = new SelectList(_context.HocPhans, "HocPhanID", "TenHocPhan");
+            ViewBag.DanhSachKhoa = new SelectList(_context.Khoas, "KhoaID", "TenKhoa");
             return View();
         }
 
@@ -138,6 +138,27 @@ namespace Hoc_Lieu_Va_Review_Demooo.Controllers
 
             ViewData["HocPhanID"] = new SelectList(_context.HocPhans, "HocPhanID", "TenHocPhan", taiLieu.HocPhanID);
             return View(taiLieu);
+        }
+
+        // Dropdown liên ho giữa Khoa -> Ngành -> Học Phần
+        [HttpGet]
+        public IActionResult GetNganhByKhoa(int khoaId)
+        {
+            var nganhs = _context.Nganhs
+                .Where(n => n.KhoaID == khoaId)
+                .Select(n => new { value = n.NganhID, text = n.TenNganh })
+                .ToList();
+            return Json(nganhs);
+        }
+
+        [HttpGet]
+        public IActionResult GetHocPhanByNganh(int nganhId)
+        {
+            var hocPhans = _context.HocPhans
+                .Where(h => h.NganhID == nganhId)
+                .Select(h => new { value = h.HocPhanID, text = h.TenHocPhan })
+                .ToList();
+            return Json(hocPhans);
         }
 
         // Hàm xử lý việc tải file và đếm lượt tải
