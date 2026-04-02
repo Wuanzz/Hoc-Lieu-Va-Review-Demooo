@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 namespace Hoc_Lieu_Va_Review_Demooo.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize]
+    [Authorize(Roles = "GiangVien")]
     public class KiemDuyetController : Controller
     {
         private readonly ApplicationDbContext _context;
