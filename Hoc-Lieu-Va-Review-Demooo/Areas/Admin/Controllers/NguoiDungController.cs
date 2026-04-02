@@ -3,8 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Hoc_Lieu_Va_Review_Demooo.Models;
 using Microsoft.AspNetCore.Authorization;
 
-namespace Hoc_Lieu_Va_Review_Demooo.Controllers
+namespace Hoc_Lieu_Va_Review_Demooo.Areas.Admin.Controllers
 {
+    [Area("Admin")]
     // Chỉ ai có VaiTro = "Admin" mới được gọi các hàm trong Controller này
     [Authorize(Roles = "Admin")]
     public class NguoiDungController : Controller

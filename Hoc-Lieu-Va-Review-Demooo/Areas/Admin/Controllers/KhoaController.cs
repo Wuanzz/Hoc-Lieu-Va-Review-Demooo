@@ -3,8 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Hoc_Lieu_Va_Review_Demooo.Models;
 using Microsoft.AspNetCore.Authorization;
 
-namespace Hoc_Lieu_Va_Review_Demooo.Controllers
+namespace Hoc_Lieu_Va_Review_Demooo.Areas.Admin.Controllers
 {
+    [Area("Admin")]
     // Yêu cầu phải đăng nhập mới được vào trang này
     [Authorize]
     public class KhoaController : Controller
