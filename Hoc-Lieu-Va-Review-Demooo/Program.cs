@@ -1,7 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Hoc_Lieu_Va_Review_Demooo.Hubs;
 using Hoc_Lieu_Va_Review_Demooo.Models;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Hoc_Lieu_Va_Review_Demooo.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -22,6 +23,9 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.ExpireTimeSpan = TimeSpan.FromDays(7); // Thời gian sống của phiên đăng nhập
     });
 
+// Thêm dịch vụ SignalR vào hệ thống
+builder.Services.AddSignalR();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -39,6 +43,9 @@ app.UseRouting();
 
 app.UseAuthentication(); // Thêm middleware xác thực
 app.UseAuthorization();
+
+// Đăng ký đường dẫn cho Trạm phát sóng
+app.MapHub<NotificationHub>("/notificationHub");
 
 // Định tuyến cho khu vực admin
 app.MapControllerRoute(

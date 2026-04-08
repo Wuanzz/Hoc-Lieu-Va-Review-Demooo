@@ -50,7 +50,7 @@
 
                     <ul class="navbar-nav align-items-center">
                         @if (User.Identity.IsAuthenticated)
-                        {   
+                        {
                             <li class="nav-item d-flex align-items-center">
                                 <a class="nav-link text-primary" asp-controller="HoSo" asp-action="Index">
                                     Xin chào, <strong class="text-decoration-underline">@User.Identity.Name</strong>!
@@ -131,9 +131,50 @@
         </div>
     </footer>
 
+    <div class="toast-container position-fixed bottom-0 end-0 p-4" style="z-index: 1055">
+        <div id="liveToast" class="toast align-items-center text-white bg-primary border-0 shadow-lg rounded-4" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex p-1">
+                <div class="toast-body fw-bold fs-6" id="toastMessage">
+                </div>
+                <button type="button" class="btn-close btn-close-white me-3 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            // Khởi tạo ăng-ten kết nối đến Hub
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl("/notificationHub")
+                .build();
+
+            // Lắng nghe sự kiện "ReceiveNotification" từ Server
+            connection.on("ReceiveNotification", function (message) {
+                // Đổ text vào Toast
+                document.getElementById("toastMessage").innerText = message;
+
+                // Hiển thị Toast
+                const toastLiveExample = document.getElementById('liveToast');
+                const toast = new bootstrap.Toast(toastLiveExample, { delay: 6000 });
+                toast.show();
+            });
+
+            // Bắt đầu kết nối
+            connection.start().then(function () {
+                console.log("📡 Đã kết nối SignalR thành công! Sẵn sàng nhận thông báo.");
+            }).catch(function (err) {
+                console.error("Lỗi kết nối SignalR: ", err.toString());
+            });
+        });
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

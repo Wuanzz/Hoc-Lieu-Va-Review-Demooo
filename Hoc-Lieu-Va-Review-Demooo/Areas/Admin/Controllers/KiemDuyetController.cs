@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Hoc_Lieu_Va_Review_Demooo.Hubs;
 using Hoc_Lieu_Va_Review_Demooo.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 
 namespace Hoc_Lieu_Va_Review_Demooo.Areas.Admin.Controllers
 {
@@ -10,10 +12,12 @@ namespace Hoc_Lieu_Va_Review_Demooo.Areas.Admin.Controllers
     public class KiemDuyetController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IHubContext<NotificationHub> _hubContext;
 
-        public KiemDuyetController(ApplicationDbContext context)
+        public KiemDuyetController(ApplicationDbContext context, IHubContext<NotificationHub> hubContext)
         {
             _context = context;
+            _hubContext = hubContext;
         }
 
         // Hiển thị Dashboard Kiểm duyệt (Gồm cả Tài liệu chờ duyệt & Báo cáo)
@@ -64,7 +68,12 @@ namespace Hoc_Lieu_Va_Review_Demooo.Areas.Admin.Controllers
         public async Task<IActionResult> DuyetTaiLieu(int id)
         {
             var taiLieu = await _context.TaiLieus.FindAsync(id);
-            if (taiLieu != null) { taiLieu.TrangThaiDuyet = "HopLe"; await _context.SaveChangesAsync(); }
+            if (taiLieu != null) 
+            { 
+                taiLieu.TrangThaiDuyet = "HopLe"; 
+                await _context.SaveChangesAsync();
+                await _hubContext.Clients.All.SendAsync("ReceiveNotification", $"📄 Có một tài liệu mới vừa được duyệt: {taiLieu.TenTaiLieu}. Vào xem ngay!");
+            }
             return RedirectToAction(nameof(Index));
         }
 
